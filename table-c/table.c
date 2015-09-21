@@ -47,6 +47,10 @@ fail:
 	return NULL;
 }
 
+static TValue* tgetnodes(Table* t, TKey* k) {
+	
+}
+
 TValue* tget(Table* t, TValue* key) {
 	if(isvali(key) && key->value_.i < t->arrsize) {
 		return tgetarray(t, key->value_.i);
