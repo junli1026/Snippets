@@ -25,8 +25,8 @@ void tdelete(Table *t) {
 	if(t->nodes) {
 		int i = 0;
 		for(i = 0; i < t->nsize; i++) {
-			Node* c = t->nodes[i];
-			Node* n = curr;
+			Node *c = t->nodes[i];
+			Node *n = c;
 			while(n) {
 				c = n;
 				n = n->next;
@@ -44,9 +44,8 @@ static unsigned long hashpointer(void* p) {
 
 static unsigned long hashstr(char* str) {
 	unsigned long hash = 5381;
-    int c;
-    while (c = *str++)
-        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+    while (*str)
+        hash = ((hash << 5) + hash) + *str; /* hash * 33 + c */
     return hash; 
 }
 
@@ -55,7 +54,7 @@ static unsigned long hashf(double f) {
 		unsigned long a;
 		unsigned long b;
 	} tt;
-	memcpy(&tt, p, sizeof(double));
+	memcpy(&tt, &f, sizeof(double));
 	return (unsigned long)(tt.a + tt.b);
 }
 
@@ -74,7 +73,7 @@ static TValue* tgetslot(Table* t, int hash, TValue* k) {
 	Node* curr = t->nodes[index];
 	Node* np = curr;
 	while(np) {
-		if (np->key == *key) return &(np->val);
+		if (memcmp(&(np->key), k, sizeof(*k)) == 0) return &(np->val);
 		np = np->next;
 	}
 	Node* n = (Node*)calloc(1, sizeof(Node));
@@ -86,23 +85,23 @@ static TValue* tgetslot(Table* t, int hash, TValue* k) {
 }
 
 //{ get value slot
-static TValue* tgetbyi(Table* t, int i) {
+static TValue* tgetbyi(Table* t, int i, TValue* key) {
 	if (t->arrsize == 0) {
 		t->array = calloc(2, sizeof(Node)); //initial size is 2
-		if (t->array == NULL) return tgetslot(t, hashi(i));
+		if (t->array == NULL) return tgetslot(t, hashi(i), key);
 		t->arrsize = 2;
 		t->arruse = 0;
 	}
 	if (i < t->arrsize * 2) { //array
 		if (i >= t->arrsize) {
 			TValue* r = (TValue*)realloc(t->array, sizeof(TValue) * t->arrsize * 2);
-			if (r == NULL) goto fail;
+			if (r == NULL) return NULL;
 			t->array = r;
 			t->arrsize = t->arrsize * 2;
 		}
 		return t->array + i;
 	} else { //hash
-		return tgetslot(t, hashi(i));
+		return tgetslot(t, hashi(i), key);
 	}
 }
 
@@ -111,7 +110,7 @@ static TValue* tgetbyi(Table* t, int i) {
 TValue* tget(Table* t, TValue* key) {
 	unsigned long hash;
 	if(isvali(key)) {
-		return tgetbyi(Table* t, key->value_.i); 
+		return tgetbyi(t, key->value_.i, key); 
 	} else if (isvalf(key)) {
 		hash = hashf(key->value_.f);
 		return tgetslot(t, hash, key);
@@ -129,7 +128,7 @@ TValue* tget(Table* t, TValue* key) {
 int tset(Table* t, TValue* key, TValue* value) {
 	TValue * tv = tget(t, key);
 	if(tv == NULL) return -1;
-	tv = *value;
+	*tv = *value;
 	return 0;
 }
 
@@ -144,6 +143,7 @@ void test() {
 	TValue* a = tget(t, &key);
 	assert(2 == getvali(a));
 	tdelete(t);
+	printf("test passed\n");
 }
 
 int main() {

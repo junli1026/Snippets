@@ -21,6 +21,12 @@ typedef struct TValue {
 #define TypeString 4
 #define TypePointer 8
 
+/*
+inline int valequ(TValue *a, TValue *b) {
+	return (a->tt_ == b->tt_) && (a->value_ == b->value_);
+}
+*/
+
 #define setvalnil(o) {TValue* v = (o); v->tt_ = TypeNil;}
 #define isvalnil(o) ((o)->tt_ == TypeNil)
 
@@ -50,7 +56,7 @@ typedef struct Table {
 	TValue *array;
 	int arrsize;
 	int arruse;
-	Node* nodes;
+	Node** nodes;
 	int nsize;
 	int nuse;
 	Node* lastfree;
