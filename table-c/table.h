@@ -3,7 +3,8 @@
 
 typedef union Value {
 	int i;   	//interger
-	float f;	//float
+	double f;	//float
+	char* str;  //string
 	void* p;	//pointer
 } Value;
 
@@ -13,11 +14,6 @@ typedef union Value {
 typedef struct TValue {
 	TValuefields;
 } TValue;
-
-typedef struct TKey {
-	TValuefields;
-	struct TKey* next;
-} TKey;
 
 #define TypeNil 0
 #define TypeInteget 1
@@ -45,8 +41,9 @@ typedef struct TKey {
 #define getvalp(o) ((o)->value_.p)
 
 typedef struct Node {
+  TValue key;
   TValue val;
-  TKey key;
+  struct Node* next;
 } Node;
 
 typedef struct Table {
