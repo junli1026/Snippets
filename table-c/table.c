@@ -81,6 +81,7 @@ static TValue* tgetslot(Table* t, int hash, TValue* k) {
 	n->next = curr;
 	n->key = *k;
 	t->nodes[index] = n;
+	t->nuse++;
 	return &(n->val);
 }
 
