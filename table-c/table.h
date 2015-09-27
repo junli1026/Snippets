@@ -59,7 +59,7 @@ typedef struct Table {
 	Node** nodes;
 	int nsize;
 	int nuse;
-	Node* lastfree;
+	Node** lastfree;
 	TValue nil;
 } Table;
 
